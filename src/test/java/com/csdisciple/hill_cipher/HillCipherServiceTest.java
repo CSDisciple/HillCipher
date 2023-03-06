@@ -18,20 +18,20 @@ public class HillCipherServiceTest {
     private HillCipherService service;
 
     @Test
-    public void testDecryptChar(){
+    public void testDecryptChar() throws Exception {
         int encryptedChar = service.encryptCharToNumber('g');
 
         assertEquals('g', service.decryptNumberToChar(encryptedChar));
     }
 
     @Test
-    public void encryptCharToNumber(){
-        int encryptedChar = service.encryptCharToNumber('d');
-        assertEquals(4, encryptedChar);
+    public void encryptCharToNumber() throws Exception {
+        int encryptedChar = service.encryptCharToNumber('z');
+        assertEquals(26, encryptedChar);
     }
 
     @Test
-    public void getRandomKey(){
+    public void getRandomKey() throws Exception {
         int keyLength = 3;
         String randomKey = service.generateRandomKey(keyLength);
         assertEquals(Math.pow(keyLength, 2), randomKey.length());
@@ -59,25 +59,14 @@ public class HillCipherServiceTest {
 //    }
 
     @Test
-    public void encrypt(){
+    public void encrypt() throws Exception {
         String message = service.encrypt("hellomynameis");
         assertEquals(message.length(), "hellomynameis".length());
     }
     @Test
-    public void decrypt(){
+    public void decrypt() throws Exception {
         String message = service.decrypt("hellomynameis");
         assertEquals(message.length(), "hellomynameis".length());
     }
-//
-//    @Test
-//    public void mod26Matrix(){
-//        Matrix a = new Basic2DMatrix(new int[][]{
-//                { 100.0, 250.0, 39.0 },
-//                { 48.0, 54.0, 65.0 },
-//                { 77.0, 86.0, 95.0 }
-//        });
-//        String matrix = service.mod26Matrix(a).toString();
-//        System.out.println(matrix);
-//    }
 
 }

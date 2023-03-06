@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /*
  * Step one: convert the message to a 2D array
@@ -26,12 +27,15 @@ import java.util.Random;
 public class HillCipherService {
     String key, encryptedMessage;
     Matrix keyMatrix, messageMatrix, encryptedKeyMatrix;
+    char[] alphabet =  new char[26];
 
+    Logger logger =  Logger.getLogger(HillCipherService.class.toString());
 
-    public String encrypt(String message) {
+    public String encrypt(String message) throws Exception {
+        logger.info("Starting to encrypt..." + message);
         int messageLength = message.length();
         String messageLowerCase = message.toLowerCase(Locale.ROOT);
-        key = generateRandomKey(messageLength);
+        key = "gybnqkurp";
         keyMatrix = convertKeyToMatrix(key);
         messageMatrix = convertMessageToMatrix(messageLowerCase);
         encryptedKeyMatrix = keyMatrix.times(messageMatrix);
@@ -45,38 +49,48 @@ public class HillCipherService {
         // mod  26 the result
         // convert array to a char array
         // return to user
-
+        logger.info("Finished encrypting message..." + encryptedMessage);
 
         return encryptedMessage;
     }
 
-    public int encryptCharToNumber(char letter) {
-        return Integer.valueOf(letter - 'a' + 1);
-    }
-
-    public char decryptNumberToChar(double number) {
-        return Character.valueOf((char) (number == 0 ? number + 1 : number + 'a' - 1));
-    }
-
     // inverse of the encrypted key matrix mod 26 * the encrypted message vector
-    public String decrypt(String message) {
+    public String decrypt(String message) throws Exception {
         // get inverse keyMatrix mod 26
         // multiply by message
 
-        messageMatrix = convertMessageToMatrix(message);
-        encryptedKeyMatrix = keyMatrix.times(messageMatrix);
-        encryptedKeyMatrix = mod26Matrix(encryptedKeyMatrix);
-
-
+        logger.info("Decrypting message..." + message);
         Matrix matrix = keyMatrix;
         matrix = matrix.inverse();
         matrix = mod26Matrix(matrix);
         matrix = matrix.times(encryptedKeyMatrix);
-
-
+         logger.info("Decrypted message..." + toString(matrix));
         return toString(matrix);
     }
+    public int encryptCharToNumber(char letter) throws Exception {
+        logger.info(String.valueOf(letter));
+        if(isLetter(letter)){
+            return Integer.valueOf(letter - 'a' + 1);
+        }else{
+            throw new Exception("Cannot encrypt an invalid character!");
+        }
+    }
 
+    public char decryptNumberToChar(double number) throws Exception {
+        logger.info(String.valueOf(number));
+        if(number > 0 && number <=26){
+
+            return Character.valueOf((char) (number + 'a' - 1));
+        }else {
+            throw new Exception("Number is invalid and cannot be decrypted!");
+        }
+    }
+
+
+    private static boolean isLetter(char c) {
+        return (c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z');
+    }
     // 5 x 1 returns
 //    public Matrix mod26Matrix(Matrix matrix) {
 //        Matrix ans = new Matrix(matrix.getRowDimension(), matrix.getColumnDimension());
@@ -98,7 +112,7 @@ public class HillCipherService {
     }
 
     // generate random key based on message size EX: given message size is 3, key size is 3^2
-    public String generateRandomKey(int messageLength) {
+    public String generateRandomKey(int messageLength) throws Exception {
         StringBuilder sb = new StringBuilder();
         Random r = new Random();
         int keySize = (int) Math.pow(messageLength, 2);
@@ -108,8 +122,8 @@ public class HillCipherService {
         return sb.toString();
     }
 
-    public Matrix convertKeyToMatrix(String key) {
-        int row = (int) Math.sqrt((int) key.length());
+    public Matrix convertKeyToMatrix(String key) throws Exception {
+        int row = (int) Math.sqrt(key.length());
         int col = row;
         Matrix keyMatrix = new Matrix(row, col);
         int countStringIndex = 0;
@@ -124,7 +138,7 @@ public class HillCipherService {
         return keyMatrix;
     }
 
-    public Matrix convertMessageToMatrix(String message) {
+    public Matrix convertMessageToMatrix(String message) throws Exception {
         Matrix matrix = new Matrix(message.length(), 1);
         for (int i = 0; i < matrix.getRowDimension(); i++) {
             matrix.set(i, 0, encryptCharToNumber(message.charAt(i)));
@@ -133,7 +147,7 @@ public class HillCipherService {
     }
 
     // we usually just want to toString a x by 1 matrix hence we are only concerned with the first column
-    public String toString(Matrix matrix){
+    public String toString(Matrix matrix) throws Exception{
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < matrix.getRowDimension(); i++){
             sb.append(decryptNumberToChar(matrix.get(i, 0)));
