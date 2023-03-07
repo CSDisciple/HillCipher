@@ -29,7 +29,7 @@ public class HillCipherService {
     String key, encryptedMessage;
     Matrix keyMatrix, messageMatrix, encryptedMessageMatrix;
     List<Character> alphabet = Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
-
+    char something =  alphabet.get(26 - 4);
     Logger logger =  Logger.getLogger(HillCipherService.class.toString());
 
     public String encrypt(String message) throws Exception {
@@ -56,18 +56,19 @@ public class HillCipherService {
     }
 
     // inverse of the encrypted key matrix mod 26 * the encrypted message vector
-    // TODO: decryp method is coupled with encrypt method! Uncouple them to work separately for passed in strings
+    // TODO: decrypt method is coupled with encrypt method! Uncouple them to work separately for passed in strings
     public String decrypt(String message) throws Exception {
         // get inverse keyMatrix mod 26
         // multiply by message
 
         logger.info("Decrypting message..." + message);
-        Matrix matrix = keyMatrix;
-        matrix = matrix.inverse();
-        matrix = matrix.times(encryptedMessageMatrix);
-        matrix = mod26Matrix(matrix);
+        Matrix kMatrix = keyMatrix;
+        kMatrix = kMatrix.inverse();
+        kMatrix = mod26Matrix(kMatrix);
+        kMatrix = kMatrix.times(encryptedMessageMatrix);
         //TODO matrix returns negative values and cannot be properly parsed by toString
-        return toString(matrix);
+        logger.info("Decrypting message complete." + toString(kMatrix));
+        return toString(kMatrix);
     }
 
     // simply use the array for now to lookup the char index
@@ -155,7 +156,12 @@ public class HillCipherService {
     public String toString(Matrix matrix) throws Exception{
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < matrix.getRowDimension(); i++){
-            sb.append(decryptNumberToChar(matrix.get(i, 0)));
+            if(matrix.get(i, 0 ) >= 0){
+                sb.append(decryptNumberToChar(matrix.get(i, 0)));
+            }else{
+                sb.append(decryptNumberToChar(matrix.get(i, 0) * -1));
+            }
+
         }
         return sb.toString();
     }
