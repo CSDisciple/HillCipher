@@ -4,6 +4,7 @@ import Jama.Matrix;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -26,8 +27,8 @@ import java.util.logging.Logger;
 @Service
 public class HillCipherService {
     String key, encryptedMessage;
-    Matrix keyMatrix, messageMatrix, encryptedKeyMatrix;
-    char[] alphabet =  new char[26];
+    Matrix keyMatrix, messageMatrix, encryptedMessageMatrix;
+    List<Character> alphabet = Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 
     Logger logger =  Logger.getLogger(HillCipherService.class.toString());
 
@@ -35,12 +36,12 @@ public class HillCipherService {
         logger.info("Starting to encrypt..." + message);
         int messageLength = message.length();
         String messageLowerCase = message.toLowerCase(Locale.ROOT);
-        key = "gybnqkurp";
+        key = generateRandomKey(messageLength);
         keyMatrix = convertKeyToMatrix(key);
         messageMatrix = convertMessageToMatrix(messageLowerCase);
-        encryptedKeyMatrix = keyMatrix.times(messageMatrix);
-        encryptedKeyMatrix = mod26Matrix(encryptedKeyMatrix); // returning a matrix with zeros
-        encryptedMessage = toString(encryptedKeyMatrix);
+        encryptedMessageMatrix = keyMatrix.times(messageMatrix);
+        encryptedMessageMatrix = mod26Matrix(encryptedMessageMatrix); // returning a matrix with zeros
+        encryptedMessage = toString(encryptedMessageMatrix);
 
 
         // convert key to a messageLength x messageLength array
@@ -62,25 +63,29 @@ public class HillCipherService {
         logger.info("Decrypting message..." + message);
         Matrix matrix = keyMatrix;
         matrix = matrix.inverse();
+        matrix = encryptedMessageMatrix.times(matrix);
         matrix = mod26Matrix(matrix);
-        matrix = matrix.times(encryptedKeyMatrix);
          logger.info("Decrypted message..." + toString(matrix));
         return toString(matrix);
     }
+
+    // simply use the array for now to lookup the char index
+    // Arrays.toList(alphabetArray).indexOf(char);
     public int encryptCharToNumber(char letter) throws Exception {
-        logger.info(String.valueOf(letter));
+        logger.info(String.valueOf("Encrypt method "+ alphabet.indexOf(letter)));
+
         if(isLetter(letter)){
-            return Integer.valueOf(letter - 'a' + 1);
+            return alphabet.indexOf(letter);
         }else{
             throw new Exception("Cannot encrypt an invalid character!");
         }
     }
-
+    // 
     public char decryptNumberToChar(double number) throws Exception {
-        logger.info(String.valueOf(number));
-        if(number > 0 && number <=26){
+        logger.info(String.valueOf("Decrypt method " + alphabet.get((int) number)));
+        if(number >= 0 && number < 26){
 
-            return Character.valueOf((char) (number + 'a' - 1));
+            return alphabet.get((int) number);
         }else {
             throw new Exception("Number is invalid and cannot be decrypted!");
         }
@@ -88,8 +93,8 @@ public class HillCipherService {
 
 
     private static boolean isLetter(char c) {
-        return (c >= 'a' && c <= 'z') ||
-                (c >= 'A' && c <= 'Z');
+        return (c >= 'a' && c <= 'z');
+
     }
     // 5 x 1 returns
 //    public Matrix mod26Matrix(Matrix matrix) {
@@ -117,7 +122,7 @@ public class HillCipherService {
         Random r = new Random();
         int keySize = (int) Math.pow(messageLength, 2);
         for (int i = 0; i < keySize; i++) {
-            sb.append(decryptNumberToChar(r.nextInt(27 - 1) + 1));
+            sb.append(decryptNumberToChar(r.nextInt(26)));
         }
         return sb.toString();
     }

@@ -13,6 +13,8 @@ public class HillCipherApplication {
 	public static void main(String[] args) {
 
 		SpringApplication.run(HillCipherApplication.class, args);
+		Logger logger = Logger.getLogger(HillCipherApplication.class.getName());
+		logger.severe("Hello world");
 
 
 	}
