@@ -56,6 +56,7 @@ public class HillCipherService {
     }
 
     // inverse of the encrypted key matrix mod 26 * the encrypted message vector
+    // TODO: decryp method is coupled with encrypt method! Uncouple them to work separately for passed in strings
     public String decrypt(String message) throws Exception {
         // get inverse keyMatrix mod 26
         // multiply by message
@@ -63,9 +64,8 @@ public class HillCipherService {
         logger.info("Decrypting message..." + message);
         Matrix matrix = keyMatrix;
         matrix = matrix.inverse();
-        matrix = encryptedMessageMatrix.times(matrix);
+        matrix = matrix.times(encryptedMessageMatrix);
         matrix = mod26Matrix(matrix);
-         logger.info("Decrypted message..." + toString(matrix));
         return toString(matrix);
     }
 
@@ -84,7 +84,6 @@ public class HillCipherService {
     public char decryptNumberToChar(double number) throws Exception {
         logger.info(String.valueOf("Decrypt method " + alphabet.get((int) number)));
         if(number >= 0 && number < 26){
-
             return alphabet.get((int) number);
         }else {
             throw new Exception("Number is invalid and cannot be decrypted!");
