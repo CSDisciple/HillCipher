@@ -66,6 +66,7 @@ public class HillCipherService {
         matrix = matrix.inverse();
         matrix = matrix.times(encryptedMessageMatrix);
         matrix = mod26Matrix(matrix);
+        //TODO matrix returns negative values and cannot be properly parsed by toString
         return toString(matrix);
     }
 
